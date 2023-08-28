@@ -1,5 +1,5 @@
 {
-  "name": "dotenv-toolkit",
+  "name": "dotenv-addon",
   "version": "1.0.0",
   "description": "A package with add-ons to make the job easier when used in conjunction with dotenv",
   "main": "index.js",
@@ -8,12 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wolff453/dotenv-toolkit.git"
+    "url": "git+https://github.com/wolff453/dotenv-addon.git"
   },
   "author": "wolff453",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/wolff453/dotenv-toolkit/issues"
+    "url": "https://github.com/wolff453/dotenv-addon/issues"
   },
-  "homepage": "https://github.com/wolff453/dotenv-toolkit#readme"
+  "homepage": "https://github.com/wolff453/dotenv-addon#readme",
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
 }

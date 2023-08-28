@@ -19,10 +19,14 @@ const transformType = (data) => {
     return isObjectOrArray(data) || isNumber(data) || isString(data)
 }
 
-const transformToObject = env => Object.entries(env).reduce((acc, [key, value]) => ({
-    ...acc,
-    [key]: transformType(value)
-}), {})
+const transformToObject = env => Object.entries(env).forEach(([key, value]) => {
+    if (typeof value === 'object') {
+        transformToObject(value)
+    }
+    if (typeof value === 'string') {
+        env[key] = transformType(value)
+    }
+})
 
 const interpolationMethod = (data) => {
     const regexWithDolar = /\${\w+}/gm.test(data)
@@ -43,11 +47,14 @@ const interpolateWithoutDolar = valueToInterpolate => '{' + valueToInterpolate +
 
 const searchValue = (valueToInterpolate, method) => method === '${' ? interpolateWithDolar(valueToInterpolate) : interpolateWithoutDolar(valueToInterpolate)
 
-const interpolateString = data => Object.entries(data).forEach(([key, value]) => {
+const interpolateString = (data, dotEnvObject) => Object.entries(data).forEach(([key, value]) => {
+    if (typeof value === 'object') {
+        interpolateString(value, dotEnvObject)
+    }
     const method = interpolationMethod(value)
     if (typeof value === 'string' && method) {
-        const extract = extractKeyToInterpolate(value) 
-        const valueToReplace = getValueToInterpolate(data, extract)  
+        const extract = extractKeyToInterpolate(value)
+        const valueToReplace = getValueToInterpolate(dotEnvObject, extract)
         if (Array.isArray(valueToReplace) && valueToReplace.length > 1) {
             let newKey = ''
             valueToReplace.forEach((item, index) => {
@@ -64,12 +71,12 @@ const interpolateString = data => Object.entries(data).forEach(([key, value]) =>
     }
 })
 
-const expandEnv = ({ dotEnvObject, interpolateEnv = false }) => {
-    const transformedEnv = transformToObject(dotEnvObject)
+const expandEnv = ({ dotEnvObject, config, interpolateEnv = false }) => {
+    transformToObject(config)
     if (interpolateEnv) {
-        interpolateString(transformedEnv)
+        interpolateString(config, dotEnvObject)
     }
-    return transformedEnv
+    return config
 }
 
 module.exports = { expandEnv }
