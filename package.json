@@ -1,0 +1,19 @@
+{
+  "name": "dotenv-toolkit",
+  "version": "1.0.0",
+  "description": "A package with add-ons to make the job easier when used in conjunction with dotenv",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wolff453/dotenv-toolkit.git"
+  },
+  "author": "wolff453",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wolff453/dotenv-toolkit/issues"
+  },
+  "homepage": "https://github.com/wolff453/dotenv-toolkit#readme"
+}
