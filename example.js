@@ -3,6 +3,7 @@ const { expandEnv } = require('dotenv-addon')
 
 module.exports = expandEnv({
     dotEnvObject: env.parsed,
+    notConvert: ['port'],
     config: {
         app: {
             name: process.env.APP_NAME,

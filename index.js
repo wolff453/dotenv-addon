@@ -19,9 +19,12 @@ const transformType = (data) => {
     return isObjectOrArray(data) || isNumber(data) || isString(data)
 }
 
-const transformToObject = env => Object.entries(env).forEach(([key, value]) => {
+const transformToObject = (env, notConvert) => Object.entries(env).forEach(([key, value]) => {
+    if(notConvert.includes(key)) {
+        return
+    }
     if (typeof value === 'object') {
-        transformToObject(value)
+        transformToObject(value, notConvert)
     }
     if (typeof value === 'string') {
         env[key] = transformType(value)
@@ -71,8 +74,8 @@ const interpolateString = (data, dotEnvObject) => Object.entries(data).forEach((
     }
 })
 
-const expandEnv = ({ dotEnvObject, config, interpolateEnv = false }) => {
-    transformToObject(config)
+const expandEnv = ({ dotEnvObject, config, notConvert = [], interpolateEnv = false }) => {
+    transformToObject(config, notConvert)
     if (interpolateEnv) {
         interpolateString(config, dotEnvObject)
     }
