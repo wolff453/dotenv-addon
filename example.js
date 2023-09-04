@@ -3,7 +3,6 @@ const { expandEnv } = require('dotenv-addon')
 
 module.exports = expandEnv({
     dotEnvObject: env.parsed,
-    notConvert: ['port'],
     config: {
         app: {
             name: process.env.APP_NAME,
@@ -13,7 +12,7 @@ module.exports = expandEnv({
             booleanConvert: process.env.TEST_BOOLEAN_CONVERT,
             arrayConvert: process.env.TEST_ARRAY_CONVERT,
             objectConvert: process.env.TEST_OBJECT_CONVERT
-          },
+        },
     },
     interpolateEnv: true
 })

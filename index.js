@@ -19,12 +19,15 @@ const transformType = (data) => {
     return isObjectOrArray(data) || isNumber(data) || isString(data)
 }
 
-const transformToObject = (env, notConvert) => Object.entries(env).forEach(([key, value]) => {
-    if(notConvert.includes(key)) {
+const notConvertEnv = (dotenvObject, value, notConvert) => notConvert.some(item => dotenvObject[item] === value)
+
+const transformToObject = (env, notConvert, dotenvObject) => Object.entries(env).forEach(([key, value]) => {
+    const values = notConvertEnv(dotenvObject, value, notConvert)
+    if (values) {
         return
     }
     if (typeof value === 'object') {
-        transformToObject(value, notConvert)
+        transformToObject(value, notConvert, dotenvObject)
     }
     if (typeof value === 'string') {
         env[key] = transformType(value)
@@ -43,13 +46,23 @@ const interpolationMethod = (data) => {
 }
 
 const extractKeyToInterpolate = value => value.match(/(?<={)(\w+)/gm)
+
 const getValueToInterpolate = (data, value) => value.length > 1 ? value.map(item => data[item]) : data[value]
+
 const interpolateWithDolar = valueToInterpolate => '$' + '{' + valueToInterpolate + '}'
 
 const interpolateWithoutDolar = valueToInterpolate => '{' + valueToInterpolate + '}'
 
 const searchValue = (valueToInterpolate, method) => method === '${' ? interpolateWithDolar(valueToInterpolate) : interpolateWithoutDolar(valueToInterpolate)
 
+const interpolateAcrossStrings = (obj, data, method) => data.map(item => {
+    const extract = extractKeyToInterpolate(item)
+    if (extract) {
+        const get = obj[extract]
+        return item.replace(searchValue(extract, method), get)
+    }
+    return item
+})
 const interpolateString = (data, dotEnvObject) => Object.entries(data).forEach(([key, value]) => {
     if (typeof value === 'object') {
         interpolateString(value, dotEnvObject)
@@ -58,9 +71,10 @@ const interpolateString = (data, dotEnvObject) => Object.entries(data).forEach((
     if (typeof value === 'string' && method) {
         const extract = extractKeyToInterpolate(value)
         const valueToReplace = getValueToInterpolate(dotEnvObject, extract)
-        if (Array.isArray(valueToReplace) && valueToReplace.length > 1) {
+        const cross = interpolateAcrossStrings(dotEnvObject, valueToReplace, method)
+        if (Array.isArray(cross) && cross.length > 1) {
             let newKey = ''
-            valueToReplace.forEach((item, index) => {
+            cross.forEach((item, index) => {
                 if (newKey) {
                     newKey = newKey.replace(searchValue(extract[index], method), item)
                     return
@@ -70,12 +84,12 @@ const interpolateString = (data, dotEnvObject) => Object.entries(data).forEach((
             data[key] = newKey
             return
         }
-        data[key] = value.replace(searchValue(extract, method), valueToReplace)
+        data[key] = value.replace(searchValue(extract, method), cross)
     }
 })
 
 const expandEnv = ({ dotEnvObject, config, notConvert = [], interpolateEnv = false }) => {
-    transformToObject(config, notConvert)
+    transformToObject(config, notConvert, dotEnvObject)
     if (interpolateEnv) {
         interpolateString(config, dotEnvObject)
     }
