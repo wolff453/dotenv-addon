@@ -1,6 +1,6 @@
 {
   "name": "dotenv-addon",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A package with add-ons to make the job easier when used in conjunction with dotenv",
   "main": "index.js",
   "scripts": {

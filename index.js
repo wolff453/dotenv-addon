@@ -55,14 +55,14 @@ const interpolateWithoutDolar = valueToInterpolate => '{' + valueToInterpolate +
 
 const searchValue = (valueToInterpolate, method) => method === '${' ? interpolateWithDolar(valueToInterpolate) : interpolateWithoutDolar(valueToInterpolate)
 
-const interpolateAcrossStrings = (obj, data, method) => data.map(item => {
+const interpolateAcrossStrings = (obj, data, method) => Array.isArray(data) ? data.map(item => {
     const extract = extractKeyToInterpolate(item)
     if (extract) {
         const get = obj[extract]
         return item.replace(searchValue(extract, method), get)
     }
     return item
-})
+}) : data
 const interpolateString = (data, dotEnvObject) => Object.entries(data).forEach(([key, value]) => {
     if (typeof value === 'object') {
         interpolateString(value, dotEnvObject)
