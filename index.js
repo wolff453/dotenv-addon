@@ -63,9 +63,16 @@ const interpolateAcrossStrings = (obj, data, method) => Array.isArray(data) ? da
     }
     return item
 }) : data
-const interpolateString = (data, dotEnvObject) => Object.entries(data).forEach(([key, value]) => {
+
+const notInterpolateEnv = (dotenvObject, value, notInterpolate) => notInterpolate.some(item => dotenvObject[item] === value)
+
+const interpolateString = (data, dotEnvObject, notInterpolate) => Object.entries(data).forEach(([key, value]) => {
+    const notInterpolateEnvs = notInterpolateEnv(dotEnvObject, value, notInterpolate)
+    if (notInterpolateEnvs) {
+        return
+    }
     if (typeof value === 'object') {
-        interpolateString(value, dotEnvObject)
+        interpolateString(value, dotEnvObject, notInterpolate)
     }
     const method = interpolationMethod(value)
     if (typeof value === 'string' && method) {
@@ -88,10 +95,10 @@ const interpolateString = (data, dotEnvObject) => Object.entries(data).forEach((
     }
 })
 
-const expandEnv = ({ dotEnvObject, config, notConvert = [], interpolateEnv = false }) => {
+const expandEnv = ({ dotEnvObject, config, notConvert = [], notInterpolate = [], interpolateEnv = false }) => {
     transformToObject(config, notConvert, dotEnvObject)
     if (interpolateEnv) {
-        interpolateString(config, dotEnvObject)
+        interpolateString(config, dotEnvObject, notInterpolate)
     }
     return config
 }
